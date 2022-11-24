@@ -26,6 +26,8 @@ public class DefaultServiceRegistry implements ServiceRegistry {
         registeredService.add(serviceName);
         Class<?>[] interfaces = service.getClass().getInterfaces();
         // TODO 无接口异常
+        // TODO 注册优化，尤其是有父类的时候，和一个service的多个实现类的时候
+        serviceMap.put(Object.class.getCanonicalName(), service);
         for (Class<?> i : interfaces) {
             serviceMap.put(i.getCanonicalName(), service);
         }

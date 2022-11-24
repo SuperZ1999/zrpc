@@ -22,11 +22,11 @@ public class RpcClientProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
-        // TODO toString()
-        LOGGER.debug("调用函数：{}", method.getName());
+        String methodName = method.getName();
+        LOGGER.debug("调用函数：{}", methodName);
         RpcRequest rpcRequest = RpcRequest.builder()
                 .interfaceName(method.getDeclaringClass().getName())
-                .methodName(method.getName())
+                .methodName(methodName)
                 .parameters(args)
                 .paramTypes(method.getParameterTypes())
                 .build();
