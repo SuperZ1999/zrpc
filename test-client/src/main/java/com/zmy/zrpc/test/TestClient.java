@@ -3,7 +3,7 @@ package com.zmy.zrpc.test;
 import com.zmy.zrpc.api.HelloService;
 import com.zmy.zrpc.api.WorldService;
 import com.zmy.zrpc.common.entity.HelloObject;
-import com.zmy.zrpc.core.client.RpcClientProxyFactory;
+import com.zmy.zrpc.core.socket.client.RpcClientProxyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

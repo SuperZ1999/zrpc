@@ -1,4 +1,4 @@
-package com.zmy.zrpc.core.client;
+package com.zmy.zrpc.core.socket.client;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.common.entity.RpcResponse;
@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
 public class RpcClientProxy implements InvocationHandler {
     public static final Logger LOGGER = LoggerFactory.getLogger(RpcClientProxy.class);
@@ -30,6 +29,6 @@ public class RpcClientProxy implements InvocationHandler {
                 .parameters(args)
                 .paramTypes(method.getParameterTypes())
                 .build();
-        return ((RpcResponse<?>) RpcClient.sendRequest(rpcRequest, host, port)).getData();
+        return ((RpcResponse<?>) SocketRpcClient.sendRequest(rpcRequest, host, port)).getData();
     }
 }
