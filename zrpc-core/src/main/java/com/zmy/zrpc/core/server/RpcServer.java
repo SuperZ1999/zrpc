@@ -10,15 +10,19 @@ import java.net.Socket;
 import java.util.concurrent.*;
 
 public class RpcServer {
-    public static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
+
+    private static final int CORE_POOL_SIZE = 5;
+    private static final int MAXIMUM_POOL_SIZE = 50;
+    private static final int KEEP_ALIVE_TIME = 60;
+    private static final int BLOCKING_QUEUE_CAPACITY = 100;
 
     private final ExecutorService threadPool;
     private final ServiceRegistry serviceRegistry;
 
     public RpcServer(ServiceRegistry serviceRegistry) {
-        // TODO 改成常量
-        threadPool = new ThreadPoolExecutor(5, 50, 60, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<Runnable>(100), Executors.defaultThreadFactory());
+        threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<Runnable>(BLOCKING_QUEUE_CAPACITY), Executors.defaultThreadFactory());
         this.serviceRegistry = serviceRegistry;
     }
 
