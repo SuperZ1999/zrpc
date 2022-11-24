@@ -1,5 +1,7 @@
 package com.zmy.zrpc.core.registry.impl;
 
+import com.zmy.zrpc.common.enumeration.RpcError;
+import com.zmy.zrpc.common.exception.RpcException;
 import com.zmy.zrpc.core.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +27,11 @@ public class DefaultServiceRegistry implements ServiceRegistry {
         }
         registeredService.add(serviceName);
         Class<?>[] interfaces = service.getClass().getInterfaces();
-        // TODO 无接口异常
         // TODO 注册优化，尤其是有父类的时候，和一个service的多个实现类的时候
-        serviceMap.put(Object.class.getCanonicalName(), service);
+//        serviceMap.put(Object.class.getCanonicalName(), service);
+        if (interfaces.length == 0) {
+            throw new RpcException(RpcError.SERVICE_NOT_IMPLEMENT_ANY_INTERFACE);
+        }
         for (Class<?> i : interfaces) {
             serviceMap.put(i.getCanonicalName(), service);
         }
@@ -36,7 +40,10 @@ public class DefaultServiceRegistry implements ServiceRegistry {
 
     @Override
     public Object getService(String serviceName) {
-        // TODO 无服务异常
-        return serviceMap.get(serviceName);
+        Object service = serviceMap.get(serviceName);
+        if (service == null) {
+            throw new RpcException(RpcError.SERVICE_NOT_FOUND);
+        }
+        return service;
     }
 }
