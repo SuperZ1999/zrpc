@@ -22,6 +22,7 @@ public class RpcClientProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
+        // TODO toString()
         LOGGER.debug("调用函数：{}", method.getName());
         RpcRequest rpcRequest = RpcRequest.builder()
                 .interfaceName(method.getDeclaringClass().getName())

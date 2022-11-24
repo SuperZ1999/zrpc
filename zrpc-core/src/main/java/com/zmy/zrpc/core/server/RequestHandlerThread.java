@@ -1,27 +1,27 @@
 package com.zmy.zrpc.core.server;
 
-import com.zmy.zrpc.common.entity.HelloObject;
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.common.entity.RpcResponse;
+import com.zmy.zrpc.core.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.Socket;
 
-public class WorkerThread implements Runnable{
-    public static final Logger LOGGER = LoggerFactory.getLogger(WorkerThread.class);
+public class RequestHandlerThread implements Runnable {
+    public static final Logger LOGGER = LoggerFactory.getLogger(RequestHandlerThread.class);
 
     private final Socket socket;
-    private Object service;
+    private final ServiceRegistry serviceRegistry;
+    private final RequestHandler requestHandler;
 
-    public WorkerThread(Socket socket, Object service) {
+    public RequestHandlerThread(Socket socket, ServiceRegistry serviceRegistry, RequestHandler requestHandler) {
         this.socket = socket;
-        this.service = service;
+        this.serviceRegistry = serviceRegistry;
+        this.requestHandler = requestHandler;
     }
 
     @Override
@@ -30,15 +30,17 @@ public class WorkerThread implements Runnable{
         try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
             RpcRequest rpcRequest = (RpcRequest) objectInputStream.readObject();
-            Method method = service.getClass().getDeclaredMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
-            Object returnObject = method.invoke(service, rpcRequest.getParameters());
-//            objectOutputStream.writeObject(returnObject);
+            Object service = serviceRegistry.getService(rpcRequest.getInterfaceName());
+            Object returnObject = requestHandler.handle(rpcRequest, service);
+//            Method method = service.getClass().getDeclaredMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
+//            Object returnObject = method.invoke(service, rpcRequest.getParameters());
             LOGGER.debug("远程调用完成，回复消息中。。。");
             objectOutputStream.writeObject(RpcResponse.success(returnObject));
             objectOutputStream.flush();
             LOGGER.debug("已回复");
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 }
+
