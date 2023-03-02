@@ -1,5 +1,7 @@
-package com.zmy.zrpc.core.server;
+package com.zmy.zrpc.core.socket.server;
 
+import com.zmy.zrpc.core.RequestHandlerThread;
+import com.zmy.zrpc.core.RpcServer;
 import com.zmy.zrpc.core.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +11,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.*;
 
-public class RpcServer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
+public class SocketServer implements RpcServer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);
 
     private static final int CORE_POOL_SIZE = 5;
     private static final int MAXIMUM_POOL_SIZE = 50;
@@ -19,7 +21,7 @@ public class RpcServer {
     private ServiceRegistry serviceRegistry;
     private RequestHandler requestHandler = new RequestHandler();
 
-    public RpcServer(ServiceRegistry serviceRegistry) {
+    public SocketServer(ServiceRegistry serviceRegistry) {
         this.serviceRegistry = serviceRegistry;
         BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(100);
         ThreadFactory threadFactory = Executors.defaultThreadFactory();

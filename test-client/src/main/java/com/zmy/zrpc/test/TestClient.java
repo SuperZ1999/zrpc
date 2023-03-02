@@ -2,7 +2,7 @@ package com.zmy.zrpc.test;
 
 import com.zmy.zrpc.api.HelloObject;
 import com.zmy.zrpc.api.HelloService;
-import com.zmy.zrpc.core.client.RpcClientProxy;
+import com.zmy.zrpc.core.RpcClientProxy;
 
 public class TestClient {
     public static void main(String[] args) {

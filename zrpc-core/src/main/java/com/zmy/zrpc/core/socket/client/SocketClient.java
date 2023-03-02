@@ -1,10 +1,11 @@
-package com.zmy.zrpc.core.client;
+package com.zmy.zrpc.core.socket.client;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.common.entity.RpcResponse;
 import com.zmy.zrpc.common.enumeration.ResponseCode;
 import com.zmy.zrpc.common.enumeration.RpcError;
 import com.zmy.zrpc.common.exception.RpcException;
+import com.zmy.zrpc.core.RpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +14,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class RpcClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
+public class SocketClient implements RpcClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SocketClient.class);
 
     public Object sendRequest(String host, int port, RpcRequest rpcRequest) {
         try (Socket socket = new Socket(host, port)) {

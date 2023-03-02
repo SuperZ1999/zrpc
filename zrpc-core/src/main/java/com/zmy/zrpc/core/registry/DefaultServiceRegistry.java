@@ -13,8 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultServiceRegistry implements ServiceRegistry{
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServiceRegistry.class);
 
-    private Map<String, Object> serviceMap = new HashMap<>();
-    private Set<String> registeredServices = ConcurrentHashMap.newKeySet();
+    private static final Map<String, Object> serviceMap = new HashMap<>();
+    private static final Set<String> registeredServices = ConcurrentHashMap.newKeySet();
 
     @Override
     public <T> void register(T service) {

@@ -1,6 +1,7 @@
-package com.zmy.zrpc.core.client;
+package com.zmy.zrpc.core;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
+import com.zmy.zrpc.core.socket.client.SocketClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -27,7 +28,7 @@ public class RpcClientProxy implements InvocationHandler {
                 .parameters(args)
                 .paramTypes(method.getParameterTypes())
                 .build();
-        RpcClient rpcClient = new RpcClient();
+        SocketClient rpcClient = new SocketClient();
         return rpcClient.sendRequest(host, port, rpcRequest);
     }
 }
