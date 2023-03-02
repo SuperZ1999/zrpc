@@ -6,11 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HelloServiceImpl implements HelloService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HelloServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(HelloServiceImpl.class);
 
     @Override
     public String hello(HelloObject helloObject) {
-        LOGGER.info("接收到信息：" + helloObject.getMessage());
+        logger.info("接收到信息：" + helloObject.getMessage());
         return "这是返回值：id=" + helloObject.getId();
     }
 }

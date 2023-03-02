@@ -1,9 +1,9 @@
-package com.zmy.zrpc.core;
+package com.zmy.zrpc.core.socket.server;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.common.entity.RpcResponse;
+import com.zmy.zrpc.core.RequestHandler;
 import com.zmy.zrpc.core.registry.ServiceRegistry;
-import com.zmy.zrpc.core.socket.server.RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class RequestHandlerThread implements Runnable{
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandlerThread.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestHandlerThread.class);
 
     private Socket socket;
     private ServiceRegistry serviceRegistry;
@@ -36,7 +36,7 @@ public class RequestHandlerThread implements Runnable{
             objectOutputStream.writeObject(RpcResponse.success(returnObject));
             objectOutputStream.flush();
         } catch (IOException | ClassNotFoundException e) {
-            LOGGER.error("处理请求线程发生错误：" + e);
+            logger.error("处理请求线程发生错误：" + e);
         }
     }
 }

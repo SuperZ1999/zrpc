@@ -2,11 +2,15 @@ package com.zmy.zrpc.test;
 
 import com.zmy.zrpc.api.HelloObject;
 import com.zmy.zrpc.api.HelloService;
+import com.zmy.zrpc.core.RpcClient;
 import com.zmy.zrpc.core.RpcClientProxy;
+import com.zmy.zrpc.core.netty.client.NettyClient;
+import com.zmy.zrpc.core.socket.client.SocketClient;
 
 public class TestClient {
     public static void main(String[] args) {
-        RpcClientProxy rpcClientProxy = new RpcClientProxy("127.0.0.1", 9000);
+        RpcClient rpcClient = new NettyClient("127.0.0.1", 9000);
+        RpcClientProxy rpcClientProxy = new RpcClientProxy(rpcClient);
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
         HelloObject helloObject = new HelloObject(111, "Hello Rpc!");
         String res = helloService.hello(helloObject);

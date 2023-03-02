@@ -15,9 +15,17 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class SocketClient implements RpcClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SocketClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
-    public Object sendRequest(String host, int port, RpcRequest rpcRequest) {
+    private final String host;
+    private final Integer port;
+
+    public SocketClient(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public Object sendRequest(RpcRequest rpcRequest) {
         try (Socket socket = new Socket(host, port)) {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -25,16 +33,16 @@ public class SocketClient implements RpcClient {
             objectOutputStream.flush();
             RpcResponse rpcResponse = (RpcResponse) objectInputStream.readObject();
             if (rpcResponse == null) {
-                LOGGER.error("服务调用失败，service：{}", rpcRequest.getInterfaceName());
+                logger.error("服务调用失败，service：{}", rpcRequest.getInterfaceName());
                 throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, "service:" + rpcRequest.getInterfaceName());
             }
             if (rpcResponse.getStatusCode() == null || !rpcResponse.getStatusCode().equals(ResponseCode.SUCCESS.getCode())) {
-                LOGGER.error("调用服务失败, service: {}, response:{}", rpcRequest.getInterfaceName(), rpcResponse);
+                logger.error("调用服务失败, service: {}, response:{}", rpcRequest.getInterfaceName(), rpcResponse);
                 throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, "service:" + rpcRequest.getInterfaceName());
             }
             return rpcResponse.getData();
         } catch (IOException | ClassNotFoundException e) {
-            LOGGER.error("发送rpc请求时发生错误：" + e);
+            logger.error("发送rpc请求时发生错误：" + e);
             return null;
         }
     }

@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultServiceRegistry implements ServiceRegistry{
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServiceRegistry.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultServiceRegistry.class);
 
     private static final Map<String, Object> serviceMap = new HashMap<>();
     private static final Set<String> registeredServices = ConcurrentHashMap.newKeySet();
@@ -30,7 +30,7 @@ public class DefaultServiceRegistry implements ServiceRegistry{
         for (Class<?> i : interfaces) {
             serviceMap.put(i.getCanonicalName(), service);
         }
-        LOGGER.info("向接口：{}注册服务：{}", interfaces, serviceName);
+        logger.info("向接口：{}注册服务：{}", interfaces, serviceName);
     }
 
     @Override

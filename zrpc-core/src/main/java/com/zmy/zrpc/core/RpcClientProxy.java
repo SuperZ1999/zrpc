@@ -8,12 +8,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 public class RpcClientProxy implements InvocationHandler {
-    private String host;
-    private Integer port;
+    private RpcClient rpcClient;
 
-    public RpcClientProxy(String host, Integer port) {
-        this.host = host;
-        this.port = port;
+    public RpcClientProxy(RpcClient rpcClient) {
+        this.rpcClient = rpcClient;
     }
 
     public <T> T getProxy(Class<T> clazz) {
@@ -28,7 +26,6 @@ public class RpcClientProxy implements InvocationHandler {
                 .parameters(args)
                 .paramTypes(method.getParameterTypes())
                 .build();
-        SocketClient rpcClient = new SocketClient();
-        return rpcClient.sendRequest(host, port, rpcRequest);
+        return rpcClient.sendRequest(rpcRequest);
     }
 }
