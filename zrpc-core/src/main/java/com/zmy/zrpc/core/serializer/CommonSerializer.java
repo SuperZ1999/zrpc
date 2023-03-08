@@ -10,6 +10,8 @@ public interface CommonSerializer {
     static CommonSerializer getByCode(int code) {
         switch (code) {
             // TODO: 2023/3/2 这里能用枚举类吗？
+            case 0:
+                return new KryoSerializer();
             case 1:
                 return new JsonSerializer();
             default:

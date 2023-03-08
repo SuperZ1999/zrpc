@@ -55,6 +55,8 @@ public class JsonSerializer implements CommonSerializer{
 
     @Override
     public int getCode() {
+        // TODO: 2023/3/8 这里有什么区别？
         return SerializerCode.JSON.getCode();
+//        return SerializerCode.valueOf("JSON").getCode();
     }
 }
