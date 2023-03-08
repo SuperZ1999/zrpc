@@ -1,5 +1,6 @@
 package com.zmy.zrpc.core.socket.server;
 
+import com.zmy.zrpc.common.util.ThreadPoolFactory;
 import com.zmy.zrpc.core.RequestHandler;
 import com.zmy.zrpc.core.RpcServer;
 import com.zmy.zrpc.core.registry.DefaultServiceRegistry;
@@ -15,17 +16,12 @@ import java.util.concurrent.*;
 public class SocketServer implements RpcServer {
     private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
-    private static final int CORE_POOL_SIZE = 5;
-    private static final int MAXIMUM_POOL_SIZE = 50;
-    private static final long KEEP_ALIVE_TIME = 60;
     private ExecutorService threadPool;
     private final ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
     private final RequestHandler requestHandler = new RequestHandler();
 
     public SocketServer() {
-        BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(100);
-        ThreadFactory threadFactory = Executors.defaultThreadFactory();
-        threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, workingQueue, threadFactory);
+        threadPool = ThreadPoolFactory.createDefaultThreadPool("zrpc");
     }
 
     public void start(int port) {

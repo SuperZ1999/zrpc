@@ -9,6 +9,7 @@ import com.zmy.zrpc.core.socket.client.SocketClient;
 
 public class TestClient {
     public static void main(String[] args) {
+//        RpcClient rpcClient = new SocketClient("127.0.0.1", 9000);
         RpcClient rpcClient = new NettyClient("127.0.0.1", 9000);
         RpcClientProxy rpcClientProxy = new RpcClientProxy(rpcClient);
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
