@@ -1,5 +1,7 @@
 package com.zmy.zrpc.core.netty.server;
 
+import com.zmy.zrpc.common.enumeration.RpcError;
+import com.zmy.zrpc.common.exception.RpcException;
 import com.zmy.zrpc.core.RpcServer;
 import com.zmy.zrpc.core.codec.CommonDecoder;
 import com.zmy.zrpc.core.codec.CommonEncoder;
@@ -19,8 +21,14 @@ import org.slf4j.LoggerFactory;
 public class NettyServer implements RpcServer {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
+    private CommonSerializer serializer;
+
     @Override
     public void start(int port) {
+        if (serializer == null) {
+            logger.error("未设置序列化器");
+            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
+        }
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
         NioEventLoopGroup workGroup = new NioEventLoopGroup(2);
         ServerBootstrap serverBootstrap = new ServerBootstrap();
@@ -36,7 +44,7 @@ public class NettyServer implements RpcServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new CommonEncoder(CommonSerializer.getByCode(3)));
+                        ch.pipeline().addLast(new CommonEncoder(serializer));
                         ch.pipeline().addLast(new CommonDecoder());
                         ch.pipeline().addLast(new NettyServerHandler());
                     }
@@ -50,5 +58,10 @@ public class NettyServer implements RpcServer {
             bossGroup.shutdownGracefully();
             workGroup.shutdownGracefully();
         }
+    }
+
+    @Override
+    public void setSerializer(CommonSerializer serializer) {
+        this.serializer = serializer;
     }
 }

@@ -2,6 +2,9 @@ package com.zmy.zrpc.core.netty.client;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.common.entity.RpcResponse;
+import com.zmy.zrpc.common.enumeration.RpcError;
+import com.zmy.zrpc.common.exception.RpcException;
+import com.zmy.zrpc.common.util.RpcMessageChecker;
 import com.zmy.zrpc.core.RpcClient;
 import com.zmy.zrpc.core.codec.CommonDecoder;
 import com.zmy.zrpc.core.codec.CommonEncoder;
@@ -21,8 +24,6 @@ import org.slf4j.LoggerFactory;
 public class NettyClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
-    private final String host;
-    private final Integer port;
     private static final Bootstrap bootstrap;
 
     static {
@@ -30,16 +31,12 @@ public class NettyClient implements RpcClient {
         bootstrap = new Bootstrap();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new CommonEncoder(CommonSerializer.getByCode(3)));
-                        ch.pipeline().addLast(new CommonDecoder());
-                        ch.pipeline().addLast(new NettyClientHandler());
-                    }
-                });
+                .option(ChannelOption.SO_KEEPALIVE, true);
     }
+
+    private final String host;
+    private final Integer port;
+    private CommonSerializer serializer;
 
     public NettyClient(String host, Integer port) {
         this.host = host;
@@ -48,6 +45,18 @@ public class NettyClient implements RpcClient {
 
     @Override
     public Object sendRequest(RpcRequest rpcRequest) {
+        if (serializer == null) {
+            logger.error("未设置序列化器");
+            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
+        }
+        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel ch) throws Exception {
+                ch.pipeline().addLast(new CommonEncoder(serializer));
+                ch.pipeline().addLast(new CommonDecoder());
+                ch.pipeline().addLast(new NettyClientHandler());
+            }
+        });
         try {
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
             logger.info("客户端连接到服务器 {}:{}", host, port);
@@ -65,13 +74,19 @@ public class NettyClient implements RpcClient {
                 // 关闭group，否则由于group没关闭，group的线程没关闭，client就不能停止
                 bootstrap.config().group().shutdownGracefully();
                 // TODO: 2023/3/2 这到底是什么东西？目前来看是一个全局的map
-                AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
+                AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + rpcRequest.getRequestId());
                 RpcResponse rpcResponse = channel.attr(key).get();
+                RpcMessageChecker.check(rpcRequest, rpcResponse);
                 return rpcResponse.getData();
             }
         } catch (InterruptedException e) {
             logger.error("发送消息时发生错误：" + e);
         }
         return null;
+    }
+
+    @Override
+    public void setSerializer(CommonSerializer serializer) {
+        this.serializer = serializer;
     }
 }

@@ -35,8 +35,8 @@ public class RequestHandlerThread implements Runnable{
             RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
             String interfaceName = rpcRequest.getInterfaceName();
             Object service = serviceRegistry.getService(interfaceName);
-            Object returnObject = requestHandler.handle(service, rpcRequest);
-            ObjectWriter.writeObject(outputStream, RpcResponse.success(returnObject), serializer);
+            Object response = requestHandler.handle(service, rpcRequest);
+            ObjectWriter.writeObject(outputStream, response, serializer);
         } catch (IOException e) {
             logger.error("处理请求线程发生错误：" + e);
         }

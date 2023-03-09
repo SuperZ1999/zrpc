@@ -5,6 +5,7 @@ import com.zmy.zrpc.common.entity.RpcResponse;
 import com.zmy.zrpc.common.enumeration.ResponseCode;
 import com.zmy.zrpc.common.enumeration.RpcError;
 import com.zmy.zrpc.common.exception.RpcException;
+import com.zmy.zrpc.common.util.RpcMessageChecker;
 import com.zmy.zrpc.core.RpcClient;
 import com.zmy.zrpc.core.serializer.CommonSerializer;
 import com.zmy.zrpc.core.socket.util.ObjectReader;
@@ -38,21 +39,15 @@ public class SocketClient implements RpcClient {
             InputStream inputStream = socket.getInputStream();
             ObjectWriter.writeObject(outputStream, rpcRequest, serializer);
             RpcResponse rpcResponse = (RpcResponse) ObjectReader.readObject(inputStream);
-            if (rpcResponse == null) {
-                logger.error("服务调用失败，service：{}", rpcRequest.getInterfaceName());
-                throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, "service:" + rpcRequest.getInterfaceName());
-            }
-            if (rpcResponse.getStatusCode() == null || !rpcResponse.getStatusCode().equals(ResponseCode.SUCCESS.getCode())) {
-                logger.error("调用服务失败, service: {}, response:{}", rpcRequest.getInterfaceName(), rpcResponse);
-                throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, "service:" + rpcRequest.getInterfaceName());
-            }
+            RpcMessageChecker.check(rpcRequest, rpcResponse);
             return rpcResponse.getData();
         } catch (IOException e) {
             logger.error("发送rpc请求时发生错误：" + e);
-            return null;
+            throw new RpcException("服务调用失败：", e);
         }
     }
 
+    @Override
     public void setSerializer(CommonSerializer serializer) {
         this.serializer = serializer;
     }

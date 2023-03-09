@@ -45,6 +45,7 @@ public class SocketServer implements RpcServer {
         }
     }
 
+    @Override
     public void setSerializer(CommonSerializer serializer) {
         this.serializer = serializer;
     }
