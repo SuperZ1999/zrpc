@@ -14,7 +14,7 @@ public class TestScoketServer {
         ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
         serviceRegistry.register(helloService);
         RpcServer rpcServer = new SocketServer();
-        rpcServer.setSerializer(CommonSerializer.getByCode(3));
+        rpcServer.setSerializer(CommonSerializer.getByCode(4));
         rpcServer.start(9000);
     }
 }

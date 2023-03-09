@@ -12,7 +12,7 @@ import com.zmy.zrpc.core.socket.client.SocketClient;
 public class TestSocketClient {
     public static void main(String[] args) {
         RpcClient rpcClient = new SocketClient("127.0.0.1", 9000);
-        rpcClient.setSerializer(CommonSerializer.getByCode(3));
+        rpcClient.setSerializer(CommonSerializer.getByCode(4));
         RpcClientProxy rpcClientProxy = new RpcClientProxy(rpcClient);
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
         HelloObject helloObject = new HelloObject(111, "Hello Rpc!");
