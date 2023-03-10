@@ -1,22 +1,15 @@
-package com.zmy.zrpc.core.netty.client;
+package com.zmy.zrpc.core.transport.netty.client;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.common.entity.RpcResponse;
 import com.zmy.zrpc.common.enumeration.RpcError;
 import com.zmy.zrpc.common.exception.RpcException;
 import com.zmy.zrpc.common.util.RpcMessageChecker;
-import com.zmy.zrpc.core.RpcClient;
-import com.zmy.zrpc.core.codec.CommonDecoder;
-import com.zmy.zrpc.core.codec.CommonEncoder;
+import com.zmy.zrpc.core.register.NacosServiceRegistry;
+import com.zmy.zrpc.core.register.ServiceRegistry;
+import com.zmy.zrpc.core.transport.RpcClient;
 import com.zmy.zrpc.core.serializer.CommonSerializer;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +20,11 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NettyClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
-    private final String host;
-    private final Integer port;
     private CommonSerializer serializer;
+    private final ServiceRegistry serviceRegistry;
 
-    public NettyClient(String host, Integer port) {
-        this.host = host;
-        this.port = port;
+    public NettyClient() {
+        serviceRegistry = new NacosServiceRegistry();
     }
 
     @Override
@@ -44,7 +35,8 @@ public class NettyClient implements RpcClient {
         }
         AtomicReference<Object> result = new AtomicReference<>();
         try {
-            Channel channel = ChannelProvider.get(new InetSocketAddress(host, port), serializer);
+            InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+            Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             if (channel != null && channel.isActive()) {
                 channel.writeAndFlush(rpcRequest).addListener(future -> {
                     if (future.isSuccess()) {

@@ -1,4 +1,4 @@
-package com.zmy.zrpc.core.registry;
+package com.zmy.zrpc.core.provider;
 
 import com.zmy.zrpc.common.enumeration.RpcError;
 import com.zmy.zrpc.common.exception.RpcException;
@@ -10,14 +10,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultServiceRegistry implements ServiceRegistry{
-    private static final Logger logger = LoggerFactory.getLogger(DefaultServiceRegistry.class);
+public class ServiceProviderImpl implements ServiceProvider {
+    private static final Logger logger = LoggerFactory.getLogger(ServiceProviderImpl.class);
 
     private static final Map<String, Object> serviceMap = new HashMap<>();
     private static final Set<String> registeredServices = ConcurrentHashMap.newKeySet();
 
     @Override
-    public <T> void register(T service) {
+    public <T> void addServiceProvider(T service) {
         String serviceName = service.getClass().getCanonicalName();
         if (registeredServices.contains(serviceName)) {
             return;
@@ -34,7 +34,7 @@ public class DefaultServiceRegistry implements ServiceRegistry{
     }
 
     @Override
-    public Object getService(String serviceName) {
+    public Object getServiceProvider(String serviceName) {
         Object service = serviceMap.get(serviceName);
         if (service == null) {
             throw new RpcException(RpcError.SERVICE_NOT_FOUND);

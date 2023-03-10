@@ -1,4 +1,4 @@
-package com.zmy.zrpc.core.socket.util;
+package com.zmy.zrpc.core.transport.socket.util;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.common.entity.RpcResponse;

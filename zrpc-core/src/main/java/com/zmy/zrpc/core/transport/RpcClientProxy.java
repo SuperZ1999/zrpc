@@ -1,7 +1,6 @@
-package com.zmy.zrpc.core;
+package com.zmy.zrpc.core.transport;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
-import com.zmy.zrpc.core.socket.client.SocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
