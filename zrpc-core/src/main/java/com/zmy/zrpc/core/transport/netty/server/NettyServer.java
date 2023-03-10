@@ -1,8 +1,12 @@
-package com.zmy.zrpc.core.netty.server;
+package com.zmy.zrpc.core.transport.netty.server;
 
 import com.zmy.zrpc.common.enumeration.RpcError;
 import com.zmy.zrpc.common.exception.RpcException;
-import com.zmy.zrpc.core.RpcServer;
+import com.zmy.zrpc.core.provider.ServiceProvider;
+import com.zmy.zrpc.core.provider.ServiceProviderImpl;
+import com.zmy.zrpc.core.register.NacosServiceRegistry;
+import com.zmy.zrpc.core.register.ServiceRegistry;
+import com.zmy.zrpc.core.transport.RpcServer;
 import com.zmy.zrpc.core.codec.CommonDecoder;
 import com.zmy.zrpc.core.codec.CommonEncoder;
 import com.zmy.zrpc.core.serializer.CommonSerializer;
@@ -18,17 +22,37 @@ import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+
 public class NettyServer implements RpcServer {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
+    private final String host;
+    private final int port;
+    private final ServiceProvider serviceProvider;
+    private final ServiceRegistry serviceRegistry;
     private CommonSerializer serializer;
 
+    public NettyServer(String host, int port) {
+        this.host = host;
+        this.port = port;
+        this.serviceProvider = new ServiceProviderImpl();
+        this.serviceRegistry = new NacosServiceRegistry();
+    }
+
     @Override
-    public void start(int port) {
+    public <T> void publishService(Object service, Class<T> serviceClass) {
         if (serializer == null) {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
+        serviceProvider.addServiceProvider(service);
+        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
+        start();
+    }
+
+    @Override
+    public void start() {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
         NioEventLoopGroup workGroup = new NioEventLoopGroup(2);
         ServerBootstrap serverBootstrap = new ServerBootstrap();
