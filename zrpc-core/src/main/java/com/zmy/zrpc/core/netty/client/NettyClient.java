@@ -21,18 +21,11 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class NettyClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
-
-    private static final Bootstrap bootstrap;
-
-    static {
-        NioEventLoopGroup group = new NioEventLoopGroup();
-        bootstrap = new Bootstrap();
-        bootstrap.group(group)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true);
-    }
 
     private final String host;
     private final Integer port;
@@ -49,19 +42,10 @@ public class NettyClient implements RpcClient {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(new CommonEncoder(serializer));
-                ch.pipeline().addLast(new CommonDecoder());
-                ch.pipeline().addLast(new NettyClientHandler());
-            }
-        });
+        AtomicReference<Object> result = new AtomicReference<>();
         try {
-            ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
-            logger.info("客户端连接到服务器 {}:{}", host, port);
-            Channel channel = channelFuture.channel();
-            if (channel != null) {
+            Channel channel = ChannelProvider.get(new InetSocketAddress(host, port), serializer);
+            if (channel != null && channel.isActive()) {
                 channel.writeAndFlush(rpcRequest).addListener(future -> {
                     if (future.isSuccess()) {
                         logger.info("客户端发送消息: {}", rpcRequest);
@@ -72,17 +56,20 @@ public class NettyClient implements RpcClient {
                 // 这里会阻塞，channel被关闭后就会继续向下运行
                 channel.closeFuture().sync();
                 // 关闭group，否则由于group没关闭，group的线程没关闭，client就不能停止
-                bootstrap.config().group().shutdownGracefully();
+                channel.eventLoop().parent().shutdownGracefully();
                 // TODO: 2023/3/2 这到底是什么东西？目前来看是一个全局的map
                 AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + rpcRequest.getRequestId());
                 RpcResponse rpcResponse = channel.attr(key).get();
                 RpcMessageChecker.check(rpcRequest, rpcResponse);
-                return rpcResponse.getData();
+                // TODO: 2023/3/10 这里为什么要用原子类？
+                result.set(rpcResponse.getData());
+            } else {
+                System.exit(0);
             }
         } catch (InterruptedException e) {
             logger.error("发送消息时发生错误：" + e);
         }
-        return null;
+        return result.get();
     }
 
     @Override
