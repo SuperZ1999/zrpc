@@ -20,6 +20,7 @@ public class ProtobufSerializer implements CommonSerializer{
 
     @Override
     public byte[] serialize(Object obj) {
+        logger.info("使用Protobuf序列化");
         Class<?> clazz = obj.getClass();
         Schema schema = getSchema(clazz);
         byte[] bytes;
@@ -33,6 +34,7 @@ public class ProtobufSerializer implements CommonSerializer{
 
     @Override
     public Object deserialize(byte[] bytes, Class<?> clazz) {
+        logger.info("使用Protobuf反序列化");
         Schema schema = getSchema(clazz);
         Object obj = schema.newMessage();
         ProtobufIOUtil.mergeFrom(bytes, obj, schema);

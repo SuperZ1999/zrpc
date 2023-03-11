@@ -10,7 +10,6 @@ import com.zmy.zrpc.core.transport.socket.client.SocketClient;
 public class TestSocketClient {
     public static void main(String[] args) {
         RpcClient rpcClient = new SocketClient();
-        rpcClient.setSerializer(CommonSerializer.getByCode(4));
         RpcClientProxy rpcClientProxy = new RpcClientProxy(rpcClient);
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
         HelloObject helloObject = new HelloObject(222, "Hello Rpc!");

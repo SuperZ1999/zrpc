@@ -3,9 +3,9 @@ package com.zmy.zrpc.core.transport;
 import com.zmy.zrpc.core.serializer.CommonSerializer;
 
 public interface RpcServer {
-    void start();
+    int DEFAULT_SERIALIZER = CommonSerializer.PROTOBUF_SERIALIZER;
 
-    void setSerializer(CommonSerializer serializer);
+    void start();
 
     <T> void publishService(T service, Class<T> serviceClass);
 }

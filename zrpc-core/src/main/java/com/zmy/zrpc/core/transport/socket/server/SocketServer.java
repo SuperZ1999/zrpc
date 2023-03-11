@@ -26,7 +26,7 @@ public class SocketServer implements RpcServer {
 
     private ExecutorService threadPool;
     private final RequestHandler requestHandler = new RequestHandler();
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
 
     private final String host;
     private final int port;
@@ -34,11 +34,16 @@ public class SocketServer implements RpcServer {
     private final ServiceRegistry serviceRegistry;
 
     public SocketServer(String host, int port) {
+        this(host, port, DEFAULT_SERIALIZER);
+    }
+
+    public SocketServer(String host, int port, Integer serializerCode) {
         this.host = host;
         this.port = port;
         this.serviceProvider = new ServiceProviderImpl();
         this.serviceRegistry = new NacosServiceRegistry();
-        threadPool = ThreadPoolFactory.createDefaultThreadPool("zrpc");
+        this.threadPool = ThreadPoolFactory.createDefaultThreadPool("zrpc");
+        this.serializer = CommonSerializer.getByCode(serializerCode);
     }
 
     public <T> void publishService(T service, Class<T> serviceClass) {
@@ -52,10 +57,10 @@ public class SocketServer implements RpcServer {
     }
 
     public void start() {
+        SingletonFactory.getInstance(ShutdownHook.class).addClearAllHook();
         try (ServerSocket serverSocket = new ServerSocket()) {
             serverSocket.bind(new InetSocketAddress(host, port));
             logger.info("服务器正在启动.....");
-            SingletonFactory.getInstance(ShutdownHook.class).addClearAllHook();
             Socket socket;
             while ((socket = serverSocket.accept()) != null) {
                 logger.info("客户端已连接，ip为：" + socket.getInetAddress());
@@ -65,10 +70,5 @@ public class SocketServer implements RpcServer {
         } catch (IOException e) {
             logger.error("启动服务器或者处理请求时发生错误：" + e);
         }
-    }
-
-    @Override
-    public void setSerializer(CommonSerializer serializer) {
-        this.serializer = serializer;
     }
 }

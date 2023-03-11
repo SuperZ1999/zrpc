@@ -9,8 +9,7 @@ import com.zmy.zrpc.core.serializer.CommonSerializer;
 
 public class TestNettyClient {
     public static void main(String[] args) {
-        RpcClient rpcClient = new NettyClient();
-        rpcClient.setSerializer(CommonSerializer.getByCode(4));
+        RpcClient rpcClient = new NettyClient(CommonSerializer.KRYO_SERIALIZER);
         RpcClientProxy rpcClientProxy = new RpcClientProxy(rpcClient);
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
         HelloObject helloObject = new HelloObject(111, "Hello Rpc!");

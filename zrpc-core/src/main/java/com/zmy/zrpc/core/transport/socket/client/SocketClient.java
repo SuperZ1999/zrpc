@@ -23,10 +23,15 @@ import java.net.Socket;
 public class SocketClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
     private final ServiceDiscovery serviceDiscovery;
 
     public SocketClient() {
+        this(DEFAULT_SERIALIZER);
+    }
+
+    public SocketClient(Integer serializerCode) {
+        serializer = CommonSerializer.getByCode(serializerCode);
         serviceDiscovery = new NacosServiceDiscovery();
     }
 
@@ -48,10 +53,5 @@ public class SocketClient implements RpcClient {
             logger.error("发送rpc请求时发生错误：" + e);
             throw new RpcException("服务调用失败：", e);
         }
-    }
-
-    @Override
-    public void setSerializer(CommonSerializer serializer) {
-        this.serializer = serializer;
     }
 }

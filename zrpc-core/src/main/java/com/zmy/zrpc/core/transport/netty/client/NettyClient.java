@@ -22,10 +22,15 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NettyClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
     private final ServiceDiscovery serviceDiscovery;
 
     public NettyClient() {
+        this(DEFAULT_SERIALIZER);
+    }
+
+    public NettyClient(Integer serializerCode) {
+        serializer = CommonSerializer.getByCode(serializerCode);
         serviceDiscovery = new NacosServiceDiscovery();
     }
 
@@ -62,12 +67,9 @@ public class NettyClient implements RpcClient {
             }
         } catch (InterruptedException e) {
             logger.error("发送消息时发生错误：" + e);
+            // TODO: 2023/3/11 这里有什么作用？
+            Thread.currentThread().interrupt();
         }
         return result.get();
-    }
-
-    @Override
-    public void setSerializer(CommonSerializer serializer) {
-        this.serializer = serializer;
     }
 }

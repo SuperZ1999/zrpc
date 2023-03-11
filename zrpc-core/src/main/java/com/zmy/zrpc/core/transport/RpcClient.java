@@ -4,7 +4,7 @@ import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.core.serializer.CommonSerializer;
 
 public interface RpcClient {
-    Object sendRequest(RpcRequest rpcRequest);
+    int DEFAULT_SERIALIZER = CommonSerializer.PROTOBUF_SERIALIZER;
 
-    void setSerializer(CommonSerializer serializer);
+    Object sendRequest(RpcRequest rpcRequest);
 }

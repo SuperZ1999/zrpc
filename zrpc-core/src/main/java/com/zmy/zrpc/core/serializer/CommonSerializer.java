@@ -1,6 +1,12 @@
 package com.zmy.zrpc.core.serializer;
 
 public interface CommonSerializer {
+    Integer KRYO_SERIALIZER = 0;
+    Integer JSON_SERIALIZER = 1;
+    Integer HESSIAN_SERIALIZER = 2;
+    Integer HESSIAN2_SERIALIZER = 3;
+    Integer PROTOBUF_SERIALIZER = 4;
+
     byte[] serialize(Object obj);
 
     Object deserialize(byte[] bytes, Class<?> clazz);

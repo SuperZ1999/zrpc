@@ -16,11 +16,12 @@ import java.util.concurrent.ExecutorService;
 public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private static final Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
 
-    private static RequestHandler requestHandler;
+    private final RequestHandler requestHandler;
     private static final String THREAD_NAME_PREFIX = "netty-server-handler";
-    private static final ExecutorService threadPool;
+    private final ExecutorService threadPool;
 
-    static {
+
+    public NettyServerHandler() {
         requestHandler = new RequestHandler();
         threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
     }
@@ -32,8 +33,8 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
                 logger.info("服务器接收到请求: {}", msg);
                 Object response = requestHandler.handle(msg);
                 ChannelFuture channelFuture = ctx.writeAndFlush(response);
-                // 服务端发完数据就关闭了
-                channelFuture.addListener(ChannelFutureListener.CLOSE);
+                // 服务端如发送数据失败，就关闭channel
+                channelFuture.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
             } finally {
                 // TODO: 2023/3/2 这是干嘛的？
                 ReferenceCountUtil.release(msg);
