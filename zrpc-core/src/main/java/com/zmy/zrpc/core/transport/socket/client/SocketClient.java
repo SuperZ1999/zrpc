@@ -5,7 +5,9 @@ import com.zmy.zrpc.common.entity.RpcResponse;
 import com.zmy.zrpc.common.enumeration.RpcError;
 import com.zmy.zrpc.common.exception.RpcException;
 import com.zmy.zrpc.common.util.RpcMessageChecker;
+import com.zmy.zrpc.core.register.NacosServiceDiscovery;
 import com.zmy.zrpc.core.register.NacosServiceRegistry;
+import com.zmy.zrpc.core.register.ServiceDiscovery;
 import com.zmy.zrpc.core.register.ServiceRegistry;
 import com.zmy.zrpc.core.transport.RpcClient;
 import com.zmy.zrpc.core.serializer.CommonSerializer;
@@ -22,10 +24,10 @@ public class SocketClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
     private CommonSerializer serializer;
-    private final ServiceRegistry serviceRegistry;
+    private final ServiceDiscovery serviceDiscovery;
 
     public SocketClient() {
-        serviceRegistry = new NacosServiceRegistry();
+        serviceDiscovery = new NacosServiceDiscovery();
     }
 
     public Object sendRequest(RpcRequest rpcRequest) {
@@ -33,7 +35,7 @@ public class SocketClient implements RpcClient {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+        InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
         try (Socket socket = new Socket()) {
             socket.connect(inetSocketAddress);
             OutputStream outputStream = socket.getOutputStream();

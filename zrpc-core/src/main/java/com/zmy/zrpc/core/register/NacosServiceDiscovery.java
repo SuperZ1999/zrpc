@@ -1,7 +1,6 @@
 package com.zmy.zrpc.core.register;
 
 import com.alibaba.nacos.api.exception.NacosException;
-import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.zmy.zrpc.common.enumeration.RpcError;
@@ -13,22 +12,24 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-public class NacosServiceRegistry implements ServiceRegistry{
-    private static final Logger logger = LoggerFactory.getLogger(NacosServiceRegistry.class);
+public class NacosServiceDiscovery implements ServiceDiscovery{
+    private static final Logger logger = LoggerFactory.getLogger(NacosServiceDiscovery.class);
 
     private final NamingService namingService;
 
-    public NacosServiceRegistry() {
+    public NacosServiceDiscovery() {
         namingService = NacosUtil.getNamingService();
     }
 
     @Override
-    public void register(String serviceName, InetSocketAddress inetSocketAddress) {
+    public InetSocketAddress lookupService(String serviceName) {
         try {
-            NacosUtil.registerService(namingService, serviceName, inetSocketAddress);
+            List<Instance> instances = NacosUtil.getAllInstances(namingService, serviceName);
+            Instance instance = instances.get(0);
+            return new InetSocketAddress(instance.getIp(), instance.getPort());
         } catch (NacosException e) {
-            logger.error("注册服务时有错误发生" + e);
-            throw new RpcException(RpcError.REGISTER_SERVICE_FAILED);
+            logger.error("获取服务时有错误发生" + e);
+            throw new RpcException(RpcError.LOOKUP_SERVICE_FAILED);
         }
     }
 }
