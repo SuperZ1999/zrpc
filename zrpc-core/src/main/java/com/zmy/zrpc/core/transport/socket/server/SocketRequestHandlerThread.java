@@ -2,7 +2,6 @@ package com.zmy.zrpc.core.transport.socket.server;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.core.handler.RequestHandler;
-import com.zmy.zrpc.core.provider.ServiceProvider;
 import com.zmy.zrpc.core.serializer.CommonSerializer;
 import com.zmy.zrpc.core.transport.socket.util.ObjectReader;
 import com.zmy.zrpc.core.transport.socket.util.ObjectWriter;
@@ -12,14 +11,14 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 
-public class RequestHandlerThread implements Runnable{
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandlerThread.class);
+public class SocketRequestHandlerThread implements Runnable{
+    private static final Logger logger = LoggerFactory.getLogger(SocketRequestHandlerThread.class);
 
     private Socket socket;
     private RequestHandler requestHandler;
     private CommonSerializer serializer;
 
-    public RequestHandlerThread(Socket socket, RequestHandler requestHandler, CommonSerializer serializer) {
+    public SocketRequestHandlerThread(Socket socket, RequestHandler requestHandler, CommonSerializer serializer) {
         this.socket = socket;
         this.requestHandler = requestHandler;
         this.serializer = serializer;

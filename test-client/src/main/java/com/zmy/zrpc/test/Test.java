@@ -3,12 +3,16 @@ package com.zmy.zrpc.test;
 import com.zmy.zrpc.core.serializer.Hessian2Serializer;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class Test {
     public static void main(String[] args) {
-        byte[] bytes = intToBytes(0xCAFEBABE);
-        System.out.println(Arrays.toString(bytes));
-        System.out.println(bytesToInt(bytes));
+        HashSet<Integer> integers = new HashSet<>();
+        try {
+            System.out.println(integers.getClass() == Class.forName("java.util.HashSet"));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 //    private static int bytesToInt(byte[] src) {

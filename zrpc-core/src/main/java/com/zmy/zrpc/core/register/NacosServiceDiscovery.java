@@ -15,16 +15,10 @@ import java.util.List;
 public class NacosServiceDiscovery implements ServiceDiscovery{
     private static final Logger logger = LoggerFactory.getLogger(NacosServiceDiscovery.class);
 
-    private final NamingService namingService;
-
-    public NacosServiceDiscovery() {
-        namingService = NacosUtil.getNamingService();
-    }
-
     @Override
     public InetSocketAddress lookupService(String serviceName) {
         try {
-            List<Instance> instances = NacosUtil.getAllInstances(namingService, serviceName);
+            List<Instance> instances = NacosUtil.getAllInstances(serviceName);
             Instance instance = instances.get(0);
             return new InetSocketAddress(instance.getIp(), instance.getPort());
         } catch (NacosException e) {

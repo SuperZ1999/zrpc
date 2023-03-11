@@ -2,8 +2,10 @@ package com.zmy.zrpc.core.transport.socket.server;
 
 import com.zmy.zrpc.common.enumeration.RpcError;
 import com.zmy.zrpc.common.exception.RpcException;
-import com.zmy.zrpc.common.util.ThreadPoolFactory;
+import com.zmy.zrpc.common.factory.SingletonFactory;
+import com.zmy.zrpc.common.factory.ThreadPoolFactory;
 import com.zmy.zrpc.core.handler.RequestHandler;
+import com.zmy.zrpc.core.hook.ShutdownHook;
 import com.zmy.zrpc.core.register.NacosServiceRegistry;
 import com.zmy.zrpc.core.register.ServiceRegistry;
 import com.zmy.zrpc.core.transport.RpcServer;
@@ -50,12 +52,14 @@ public class SocketServer implements RpcServer {
     }
 
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            serverSocket.bind(new InetSocketAddress(host, port));
             logger.info("服务器正在启动.....");
+            SingletonFactory.getInstance(ShutdownHook.class).addClearAllHook();
             Socket socket;
             while ((socket = serverSocket.accept()) != null) {
                 logger.info("客户端已连接，ip为：" + socket.getInetAddress());
-                threadPool.execute(new RequestHandlerThread(socket, requestHandler, serializer));
+                threadPool.execute(new SocketRequestHandlerThread(socket, requestHandler, serializer));
             }
             threadPool.shutdown();
         } catch (IOException e) {

@@ -1,4 +1,4 @@
-package com.zmy.zrpc.common.util;
+package com.zmy.zrpc.common.factory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.NoArgsConstructor;

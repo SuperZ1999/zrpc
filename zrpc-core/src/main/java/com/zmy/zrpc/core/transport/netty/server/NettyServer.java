@@ -2,6 +2,8 @@ package com.zmy.zrpc.core.transport.netty.server;
 
 import com.zmy.zrpc.common.enumeration.RpcError;
 import com.zmy.zrpc.common.exception.RpcException;
+import com.zmy.zrpc.common.factory.SingletonFactory;
+import com.zmy.zrpc.core.hook.ShutdownHook;
 import com.zmy.zrpc.core.provider.ServiceProvider;
 import com.zmy.zrpc.core.provider.ServiceProviderImpl;
 import com.zmy.zrpc.core.register.NacosServiceRegistry;
@@ -75,6 +77,7 @@ public class NettyServer implements RpcServer {
                 });
         try {
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
+            SingletonFactory.getInstance(ShutdownHook.class).addClearAllHook();
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             logger.error("启动服务器时，发生错误：" + e);
