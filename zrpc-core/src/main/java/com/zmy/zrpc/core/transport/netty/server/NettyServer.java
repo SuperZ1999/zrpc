@@ -21,10 +21,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 public class NettyServer implements RpcServer {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
@@ -77,6 +79,7 @@ public class NettyServer implements RpcServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS));
                         ch.pipeline().addLast(new CommonEncoder(serializer));
                         ch.pipeline().addLast(new CommonDecoder());
                         ch.pipeline().addLast(new NettyServerHandler());

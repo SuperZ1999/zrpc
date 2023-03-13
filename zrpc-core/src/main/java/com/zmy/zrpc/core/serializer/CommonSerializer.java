@@ -7,6 +7,8 @@ public interface CommonSerializer {
     Integer HESSIAN2_SERIALIZER = 3;
     Integer PROTOBUF_SERIALIZER = 4;
 
+    Integer DEFAULT_SERIALIZER = PROTOBUF_SERIALIZER;
+
     byte[] serialize(Object obj);
 
     Object deserialize(byte[] bytes, Class<?> clazz);

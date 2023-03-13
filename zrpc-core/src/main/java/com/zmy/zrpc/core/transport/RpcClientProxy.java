@@ -31,6 +31,7 @@ public class RpcClientProxy implements InvocationHandler {
                 .parameters(args)
                 .paramTypes(method.getParameterTypes())
                 .requestId(UUID.randomUUID().toString())
+                .heartBeat(false)
                 .build();
         return rpcClient.sendRequest(rpcRequest);
     }
