@@ -1,5 +1,6 @@
 package com.zmy.zrpc.test;
 
+import com.zmy.zrpc.api.ByeService;
 import com.zmy.zrpc.api.HelloObject;
 import com.zmy.zrpc.api.HelloService;
 import com.zmy.zrpc.core.transport.RpcClient;
@@ -15,5 +16,7 @@ public class TestNettyClient {
         HelloObject helloObject = new HelloObject(111, "Hello Rpc!");
         String res = helloService.hello(helloObject);
         System.out.println(res);
+        ByeService byeService = rpcClientProxy.getProxy(ByeService.class);
+        System.out.println(byeService.bye("Netty"));
     }
 }

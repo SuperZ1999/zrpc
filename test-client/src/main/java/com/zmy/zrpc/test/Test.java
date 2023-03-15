@@ -7,12 +7,7 @@ import java.util.HashSet;
 
 public class Test {
     public static void main(String[] args) {
-        HashSet<Integer> integers = new HashSet<>();
-        try {
-            System.out.println(integers.getClass() == Class.forName("java.util.HashSet"));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+
     }
 
 //    private static int bytesToInt(byte[] src) {

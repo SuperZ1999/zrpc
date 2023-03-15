@@ -8,6 +8,7 @@ import com.zmy.zrpc.core.provider.ServiceProvider;
 import com.zmy.zrpc.core.provider.ServiceProviderImpl;
 import com.zmy.zrpc.core.register.NacosServiceRegistry;
 import com.zmy.zrpc.core.register.ServiceRegistry;
+import com.zmy.zrpc.core.transport.AbstractRpcServer;
 import com.zmy.zrpc.core.transport.RpcServer;
 import com.zmy.zrpc.core.codec.CommonDecoder;
 import com.zmy.zrpc.core.codec.CommonEncoder;
@@ -28,13 +29,9 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-public class NettyServer implements RpcServer {
+public class NettyServer extends AbstractRpcServer {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
-    private final String host;
-    private final int port;
-    private final ServiceProvider serviceProvider;
-    private final ServiceRegistry serviceRegistry;
     private final CommonSerializer serializer;
 
     public NettyServer(String host, int port) {
@@ -49,20 +46,9 @@ public class NettyServer implements RpcServer {
         this.serializer = CommonSerializer.getByCode(serializerCode);
     }
 
-
-    @Override
-    public <T> void publishService(T service, Class<T> serviceClass) {
-        if (serializer == null) {
-            logger.error("未设置序列化器");
-            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
-        }
-        serviceProvider.addServiceProvider(service, serviceClass);
-        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
-        start();
-    }
-
     @Override
     public void start() {
+        scanServices();
         SingletonFactory.getInstance(ShutdownHook.class).addClearAllHook();
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
         NioEventLoopGroup workGroup = new NioEventLoopGroup(2);

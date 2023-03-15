@@ -1,5 +1,6 @@
 package com.zmy.zrpc.test;
 
+import com.zmy.zrpc.api.ByeService;
 import com.zmy.zrpc.api.HelloObject;
 import com.zmy.zrpc.api.HelloService;
 import com.zmy.zrpc.core.loadbalancer.RoundRobinLoadBalancer;
@@ -14,9 +15,9 @@ public class TestSocketClient {
         RpcClientProxy rpcClientProxy = new RpcClientProxy(rpcClient);
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
         HelloObject helloObject = new HelloObject(222, "Hello Rpc!");
-        for (int i = 0; i < 20; i++) {
-            String res = helloService.hello(helloObject);
-            System.out.println(res);
-        }
+        String res = helloService.hello(helloObject);
+        System.out.println(res);
+        ByeService byeService = rpcClientProxy.getProxy(ByeService.class);
+        System.out.println(byeService.bye("Socket"));
     }
 }
