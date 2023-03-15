@@ -1,6 +1,10 @@
 package com.zmy.zrpc.core.transport;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
+import com.zmy.zrpc.common.entity.RpcResponse;
+import com.zmy.zrpc.common.util.RpcMessageChecker;
+import com.zmy.zrpc.core.transport.netty.client.NettyClient;
+import com.zmy.zrpc.core.transport.socket.client.SocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +12,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class RpcClientProxy implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(RpcClientProxy.class);
@@ -33,6 +39,19 @@ public class RpcClientProxy implements InvocationHandler {
                 .requestId(UUID.randomUUID().toString())
                 .heartBeat(false)
                 .build();
-        return rpcClient.sendRequest(rpcRequest);
+        RpcResponse rpcResponse = null;
+        if (rpcClient instanceof NettyClient) {
+            CompletableFuture<RpcResponse> completableFuture = (CompletableFuture<RpcResponse>) rpcClient.sendRequest(rpcRequest);
+            try {
+                rpcResponse = completableFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("方法调用请求发送失败", e);
+                return null;
+            }
+        } else if (rpcClient instanceof SocketClient) {
+            rpcResponse = (RpcResponse) rpcClient.sendRequest(rpcRequest);
+        }
+        RpcMessageChecker.check(rpcRequest, rpcResponse);
+        return rpcResponse.getData();
     }
 }

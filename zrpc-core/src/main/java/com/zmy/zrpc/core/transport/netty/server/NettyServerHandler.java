@@ -47,9 +47,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
             }
             logger.info("服务器接收到请求: {}", msg);
             Object response = requestHandler.handle(msg);
-            ChannelFuture channelFuture = ctx.writeAndFlush(response);
-            // 服务端如发送数据失败，就关闭channel
-            channelFuture.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+            if (ctx.channel().isActive() && ctx.channel().isWritable()) {
+                ctx.writeAndFlush(response);
+            } else {
+                logger.error("通道不可写");
+            }
         } finally {
             // TODO: 2023/3/2 这是干嘛的？
             ReferenceCountUtil.release(msg);

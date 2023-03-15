@@ -10,7 +10,7 @@ import com.zmy.zrpc.core.transport.socket.server.SocketServer;
 public class TestScoketServer {
     public static void main(String[] args) {
         HelloServiceImpl helloService = new HelloServiceImpl();
-        RpcServer rpcServer = new SocketServer("127.0.0.1", 9000);
+        RpcServer rpcServer = new SocketServer("127.0.0.1", 9001);
         rpcServer.publishService(helloService, HelloService.class);
     }
 }

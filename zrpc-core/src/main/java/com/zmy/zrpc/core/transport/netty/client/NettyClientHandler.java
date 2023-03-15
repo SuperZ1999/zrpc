@@ -2,6 +2,7 @@ package com.zmy.zrpc.core.transport.netty.client;
 
 import com.zmy.zrpc.common.entity.RpcRequest;
 import com.zmy.zrpc.common.entity.RpcResponse;
+import com.zmy.zrpc.common.factory.SingletonFactory;
 import com.zmy.zrpc.core.serializer.CommonSerializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -18,6 +19,12 @@ import java.net.InetSocketAddress;
 
 public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse<Object>> {
     private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
+
+    private final UnprocessedRequests unprocessedRequests;
+
+    public NettyClientHandler() {
+        this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
+    }
 
     // TODO: 2023/3/13 为什么这里会运行呢？
     @Override
@@ -41,10 +48,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse<
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse<Object> msg) throws Exception {
         try {
             logger.info("客户端收到响应：{}", msg);
-            AttributeKey<RpcResponse<Object>> key = AttributeKey.valueOf("rpcResponse" + msg.getRequestId());
-            ctx.channel().attr(key).set(msg);
-            // 把响应放进Attribute之后马上关闭channel，channel关闭后sendRequest方法中的阻塞点就会放开，向下运行
-            ctx.channel().close();
+            unprocessedRequests.complete(msg);
         } finally {
             ReferenceCountUtil.release(msg);
         }
